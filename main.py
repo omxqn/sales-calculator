@@ -5,6 +5,8 @@ import os
 import logging
 from cachetools import cached, TTLCache
 
+
+
 APP_AUTHOR = "عزام"
 APP_VERSION = "1.0"
 
@@ -26,6 +28,7 @@ def connect_database(item_name1,item_price1,sell_type1,item_quantity1):
 
         ready_now = True
         connection_error = False
+        print("T2")
 
     except Exception as ex:
         logger.debug("Error in database connection")
@@ -38,8 +41,16 @@ def connect_database(item_name1,item_price1,sell_type1,item_quantity1):
 
 thread = threading.Thread(target=connect_database,args=['','','',''])
 thread.start()
+asci = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM.+-*/=][{}()':;?><,~`!@#$%^&*| "
 
-logging.basicConfig(filename="logs.log",
+import datetime
+
+date = str(datetime.datetime.now().date())
+times = str(datetime.datetime.now().time().strftime(f'%H:%M:%S'))
+times = f'{times.split(":")[0] + "-" + times.split(":")[1] + "-" + times.split(":")[2]}'
+
+
+logging.basicConfig(filename=f"logs [{date +' '+ times}].log",
                     format='%(asctime)s %(message)s',
                     filemode='w')
 logger = logging.getLogger()
@@ -50,6 +61,9 @@ dir_ = QDir("Cairo")
 _id = QFontDatabase.addApplicationFont("Fonts\Cairo-Bold.ttf")
 dir_ = QDir("Cairo-light")
 _id = QFontDatabase.addApplicationFont("Fonts\Cairo-Light.ttf")
+
+
+
 
 @cached(cache)
 class Downloader(QDialog):
@@ -86,7 +100,7 @@ class Downloader(QDialog):
         reset_btn = QPushButton("تهيئة قاعدة البيانات", self)
         reset_btn.move(450,300)
         btn_info.unsetLayoutDirection()
-        reset_btn.hide()
+        reset_btn.show()
 
 
         self.item_name.setPlaceholderText("اسم المنتج")
@@ -172,7 +186,7 @@ class Downloader(QDialog):
         self.check_box.clicked.connect(self.check_box_clicked)
 
 
-        logger.debug("Checking for internet connection")
+        logger.debug("Checking for internet connection (Connecting to the Database)")
         while True:
 
             if ready_now and not connection_error:
@@ -185,7 +199,7 @@ class Downloader(QDialog):
                     QMessageBox.warning(self, "تحذير", "No internet connection")
                     logger.debug("No internet connection - Checking internet again")
 
-                    connect_database('','','')
+                    connect_database(' ',' ',' ',' ')
                     if not connection_error:
                         QMessageBox.information(self, "معلومات", "تم الاتصال بقاعدة البيانات")
                         logger.debug("Connection successed after failing")
@@ -224,7 +238,7 @@ class Downloader(QDialog):
             self.item_quantity.show()
             self.item_name.show()
             btn_download.show()
-            reset_btn.hide()
+            reset_btn.show()
             self.items_sale.hide()
             logger.debug("All widgets has been shown")
 
@@ -283,8 +297,9 @@ class Downloader(QDialog):
             if ready_now and not connection_error:
                 logger.debug("Trying to submit data")
 
-                if item_name == '' or item_price == '' or sell_type == '' or item_quantity == '':
-                    QMessageBox.warning(self, "تحذير", "أحد الحقول فارغة يرجى التأكد منها")
+                if item_name == '' or item_price == '' or sell_type == '' or item_quantity == '' or item_quantity in asci or item_price in asci:
+                    QMessageBox.warning(self, "تحذير", "أحد الحقول خاطئة او فارغة يرجى التأكد منها")
+                    logger.debug("Empty textbox or forbbeden characters written")
                 else:
                     connect_database(item_name, item_price, sell_type,item_quantity)
                     QMessageBox.information(self, "معلومات", "تم اضافة المنتج في قاعدة البيانات")
