@@ -127,4 +127,4 @@ if __name__ == "__main__":
 
 '''    print('Done... ')
     print(get_table_info('sojjadah', id=True))
-    # table_columns('vid')'''
+    # table_columns('vid') '''
